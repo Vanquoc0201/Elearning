@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import './App.css'
+import './App.scss'
 import { BrowserRouter, Routes } from 'react-router-dom'
 import { routes,renderRoutes } from './routes'
 
