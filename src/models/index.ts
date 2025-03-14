@@ -19,4 +19,13 @@ export type Course =  {
         maDanhMucKhoahoc : string,
         tenDanhMucKhoaHoc : string,
     }
-    }
+}
+export type User = {
+    taiKhoan: string;
+    matKhau : string;
+    hoTen: string;
+    email: string;
+    soDT: string;
+    maNhom: string;
+    maLoaiNguoiDung: string;
+}

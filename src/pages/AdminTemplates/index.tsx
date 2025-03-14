@@ -1,5 +1,8 @@
+import { Outlet } from "react-router-dom"
 export default function AdminPage() {
   return (
-    <div>AdminPage</div>
+    <div>
+      <Outlet />
+    </div>
   )
 }

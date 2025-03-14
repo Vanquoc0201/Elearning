@@ -3,6 +3,12 @@ import AboutPage from "../pages/HomeTemplates/AboutPage";
 import React from "react";
 import { Route } from "react-router-dom";
 import HomeTemplates from "../pages/HomeTemplates";
+import AdminPage from "../pages/AdminTemplates";
+import DashBoardPage from "../pages/AdminTemplates/Dashboard";
+import AddUserPage from "../pages/AdminTemplates/AddUserPage";
+import AuthPage from "../pages/AdminTemplates/AuthPage";
+import PageNotFound from "../pages/PageNotFound";
+
 
 type TRoute = {
   path: string;
@@ -25,6 +31,28 @@ export const routes: TRoute[] = [
       },
     ],
   },
+  {
+    path: "admin",
+    element: <AdminPage />,
+    children: [
+      {
+        path: "dashboard",
+        element: <DashBoardPage />
+      },
+      {
+        path: "add-user",
+        element: <AddUserPage />
+      },
+    ]
+  },
+  {
+    path: "auth",
+    element: <AuthPage />
+  },
+  {
+    path: "*",
+    element: <PageNotFound />
+  }
 ];
 
 export const renderRoutes = (routes: TRoute[]) => {
