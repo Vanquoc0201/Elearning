@@ -8,7 +8,7 @@ export default function AddUserPage() {
     email: "",
     soDT: "",
     maNhom: "GP01",
-    maLoaiNguoiDung: "HocVien",
+    maLoaiNguoiDung: "HV",
     hoTen: "",
   })
   const handleOnChange = (e: any) => {
@@ -113,6 +113,7 @@ export default function AddUserPage() {
             Email
           </label>
           <input
+          onChange={handleOnChange}
             name="email"
             type="email"
             id="email"
@@ -133,8 +134,8 @@ export default function AddUserPage() {
             name="maLoaiNguoiDung"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
-            <option value={"HocVien"}>Học viên</option>
-            <option value={"GiaoVu"}>Giáo vụ</option>
+            <option value={"HV"}>Học viên</option>
+            <option value={"GV"}>Giáo vụ</option>
           </select>
         </div>
         <button

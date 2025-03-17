@@ -25,7 +25,7 @@ export type User = {
     matKhau : string;
     hoTen: string;
     email: string;
-    soDT: string;
+    soDt: string;
     maNhom: string;
     maLoaiNguoiDung: string;
 }

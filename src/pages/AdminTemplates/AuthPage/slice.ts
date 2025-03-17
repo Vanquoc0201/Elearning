@@ -24,7 +24,6 @@ export const actLogin = createAsyncThunk<User, any>(
   }
 );
 
-// ✅ Lấy toàn bộ thông tin user từ localStorage, không chỉ accessToken
 const currentUser = localStorage.getItem(STORAGE_KEY.CURRENT_USER)
   ? JSON.parse(localStorage.getItem(STORAGE_KEY.CURRENT_USER) as string)
   : null;
@@ -47,17 +46,17 @@ const authSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(actLogin.pending, (state) => {
+    builder.addCase(actLogin.pending, (state) =>{
       state.isLoading = true;
-    });
-    builder.addCase(actLogin.fulfilled, (state, action) => {
+    })
+    builder.addCase(actLogin.fulfilled,(state,action)=>{
       state.isLoading = false;
       state.data = action.payload;
-    });
-    builder.addCase(actLogin.rejected, (state, action) => {
+    })
+    builder.addCase(actLogin.rejected,(state,action)=>{
       state.isLoading = false;
-      state.error = action.payload as string;
-    });
+      state.error = action.payload as string
+    })
     builder.addDefaultCase((state) => state);
   },
 });
