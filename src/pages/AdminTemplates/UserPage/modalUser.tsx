@@ -7,33 +7,38 @@ type EditUserModalProps = {
   isOpen: boolean;
   onClose: () => void;
   user: User | null;
+  onUpdateSuccess: (updatedUser: User) => void; // Thêm prop mới
 };
 
 export default function EditUserModal({
   isOpen,
   onClose,
   user,
+  onUpdateSuccess, // Nhận callback từ component cha
 }: EditUserModalProps) {
   const [formData, setFormData] = useState({
     taiKhoan: "",
+    matKhau: "",
     hoTen: "",
     email: "",
     soDt: "",
     maLoaiNguoiDung: "",
+    maNhom: "GP01",
   });
 
-  // 🛠 Cập nhật formData khi user thay đổi
   useEffect(() => {
     if (user) {
       setFormData({
         taiKhoan: user.taiKhoan || "",
+        matKhau: user.matKhau || "",
         hoTen: user.hoTen || "",
         email: user.email || "",
         soDt: user.soDt || "",
         maLoaiNguoiDung: user.maLoaiNguoiDung || "",
+        maNhom: user.maNhom || "GP01",
       });
     }
-  }, [user]); // Chạy lại khi user thay đổi
+  }, [user]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -42,6 +47,11 @@ export default function EditUserModal({
   };
 
   const handleUpdateUser = async () => {
+    if (!formData.matKhau.trim()) {
+      toast.warn("Vui lòng nhập mật khẩu! 🔒");
+      return;
+    }
+
     try {
       const result = await apiService.put(
         `QuanLyNguoiDung/CapNhatThongTinNguoiDung`,
@@ -50,7 +60,8 @@ export default function EditUserModal({
 
       if (result.status === 200) {
         toast.success("Cập nhật thông tin thành công! 🎉");
-        onClose();
+        onUpdateSuccess(formData); // Cập nhật dữ liệu lên component cha
+        onClose(); // Đóng modal
       } else {
         toast.warn("Không thể cập nhật, vui lòng thử lại!");
       }
@@ -76,8 +87,20 @@ export default function EditUserModal({
             value={formData.taiKhoan}
             onChange={handleChange}
             className="w-full border p-2 bg-gray-200 opacity-70 cursor-not-allowed"
-            placeholder="Tài khoản"
             disabled
+          />
+        </div>
+        <div className="mb-2">
+          <label className="block text-sm font-medium text-gray-700">
+            Mật khẩu
+          </label>
+          <input
+            type="text"
+            name="matKhau"
+            value={formData.matKhau}
+            onChange={handleChange}
+            className="w-full border p-2"
+            placeholder="Nhập mật khẩu mới"
           />
         </div>
 

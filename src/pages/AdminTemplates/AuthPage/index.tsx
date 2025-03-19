@@ -23,7 +23,7 @@ export default function AuthPage() {
     dispatch(actLogin(user));
   }
   if(data){
-    return <Navigate to="/admin/dashboard" />
+    return <Navigate to="/admin/list-user" />
   }
   const handleErrorMessage = () =>{
     if (!error) return null;

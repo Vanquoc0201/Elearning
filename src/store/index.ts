@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import courseReducer from "./../pages/HomeTemplates/HomePage/slice"
-import listUserReducer from "./../pages/AdminTemplates/Dashboard/slice"
+import listUserReducer from "../pages/AdminTemplates/UserPage/slice"
 import authReducer from "./../pages/AdminTemplates/AuthPage/slice"
 const store = configureStore({
     reducer: {

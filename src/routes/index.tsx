@@ -4,10 +4,13 @@ import React from "react";
 import { Route } from "react-router-dom";
 import HomeTemplates from "../pages/HomeTemplates";
 import AdminPage from "../pages/AdminTemplates";
-import DashBoardPage from "../pages/AdminTemplates/Dashboard";
+import UserPage from "../pages/AdminTemplates/UserPage";
 import AddUserPage from "../pages/AdminTemplates/AddUserPage";
 import AuthPage from "../pages/AdminTemplates/AuthPage";
 import PageNotFound from "../pages/PageNotFound";
+import SearchUser from "../pages/AdminTemplates/UserPage/searchUser";
+import Dashboard from "../pages/AdminTemplates/Dashboard";
+import CoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
 
 
 type TRoute = {
@@ -36,13 +39,25 @@ export const routes: TRoute[] = [
     element: <AdminPage />,
     children: [
       {
-        path: "dashboard",
-        element: <DashBoardPage />
+        path: "list-user",
+        element: <UserPage />
       },
       {
         path: "add-user",
         element: <AddUserPage />
       },
+      {
+        path: "list-user",
+        element: <SearchUser />
+      },
+      {
+        path:"dashboard",
+        element: <Dashboard />
+      },
+      {
+        path:"course",
+        element: <CoursePage />
+      }
     ]
   },
   {
