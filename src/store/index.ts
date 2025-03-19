@@ -2,11 +2,13 @@ import { configureStore } from "@reduxjs/toolkit";
 import courseReducer from "./../pages/HomeTemplates/HomePage/slice"
 import listUserReducer from "../pages/AdminTemplates/UserPage/slice"
 import authReducer from "./../pages/AdminTemplates/AuthPage/slice"
+import courseForAdminReducer from './../pages/AdminTemplates/CoursePage/slice'
 const store = configureStore({
     reducer: {
         courseReducer,
         authReducer,
         listUserReducer,
+        courseForAdminReducer,
     },
     devTools: true,
 })

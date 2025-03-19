@@ -10,7 +10,7 @@ import AuthPage from "../pages/AdminTemplates/AuthPage";
 import PageNotFound from "../pages/PageNotFound";
 import SearchUser from "../pages/AdminTemplates/UserPage/searchUser";
 import Dashboard from "../pages/AdminTemplates/Dashboard";
-import CoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
+import AdminCoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
 
 
 type TRoute = {
@@ -56,7 +56,7 @@ export const routes: TRoute[] = [
       },
       {
         path:"course",
-        element: <CoursePage />
+        element: <AdminCoursePage />
       }
     ]
   },
