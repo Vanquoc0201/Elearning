@@ -20,7 +20,7 @@ export const addCourseForAdmin = createAsyncThunk<Course, Course>(
     async (course, { rejectWithValue }) => {
       try {
         const result = await apiService.post("QuanLyKhoaHoc/ThemKhoaHoc", course);
-        return result.data; // Trả về một object, không phải array
+        return result.data;
       } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || "Lỗi không xác định");
       }

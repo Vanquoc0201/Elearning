@@ -15,10 +15,10 @@ export type Course = {
     hinhAnh: string;
     maNhom: string;
     ngayTao: string;
-    
+    soLuongHocVien? : number
     // Thay vì chỉ có mã danh mục, giữ cả thông tin danh mục
     danhMucKhoaHoc: {
-      maDanhMucKhoaHoc: string;
+      maDanhMucKhoaHoc?: string;
       tenDanhMucKhoaHoc?: string; // Optional vì CourseForAdmin không có
     };
 
@@ -41,15 +41,35 @@ export type User = {
     maLoaiNguoiDung: string;
 }
 export type CourseForAdmin = {
-    maKhoaHoc:        string;
-    biDanh:           string;
-    tenKhoaHoc:       string;
-    moTa:             string;
-    luotXem:          number | string;
-    danhGia:          number | string;
-    hinhAnh:          string;
-    maNhom:           string;
-    ngayTao:          string;
+  maKhoaHoc: string;
+  biDanh: string;
+  tenKhoaHoc: string;
+  moTa: string;
+  luotXem: number | string;
+  danhGia: number | string;
+  hinhAnh: string;
+  maNhom: string;
+  ngayTao: string;
+  maDanhMucKhoaHoc: string;
+  taiKhoanNguoiTao: string;
+  danhMucKhoaHoc?: { 
     maDanhMucKhoaHoc: string;
-    taiKhoanNguoiTao: string;
+    tenDanhMucKhoaHoc?: string;
+  };  
+  nguoiTao?: {  
+    taiKhoan: string;
+    hoTen?: string;
+  };
+};
+
+
+export interface DanhMucKhoaHoc {
+  maDanhMucKhoaHoc: string;
+  tenDanhMucKhoaHoc: string;
+}
+
+export interface NguoiDung {
+  taiKhoan: string;
+  hoTen: string;
+  maLoaiNguoiDung: string;
 }
