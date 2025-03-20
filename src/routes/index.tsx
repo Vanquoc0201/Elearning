@@ -12,7 +12,6 @@ import SearchUser from "../pages/AdminTemplates/UserPage/searchUser";
 import Dashboard from "../pages/AdminTemplates/Dashboard";
 import AdminCoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
 
-
 type TRoute = {
   path: string;
   element: React.ReactNode;

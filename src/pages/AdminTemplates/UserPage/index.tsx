@@ -18,19 +18,23 @@ export default function UserPage() {
   useEffect(() => {
     dispatch(fetchListUser());
   }, [dispatch]);
-
   const handleDeleteUser = async (taiKhoan: string) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa người dùng này không?")) {
       return;
     }
-
+  
     try {
       const response = await apiService.delete(
-        `QuanLyNguoiDung/XoaNguoiDung/${taiKhoan}`
+        `QuanLyNguoiDung/XoaNguoiDung?TaiKhoan=${taiKhoan}`
       );
-      if (response.status === 200) {
+  
+      if (response.data) {
         toast.success("Xóa user thành công! 🎉");
-        dispatch(fetchListUser());
+        
+        // Chờ 1 giây rồi mới fetch danh sách user
+        setTimeout(() => {
+          dispatch(fetchListUser());
+        }, 1000);
       } else {
         toast.warn("Không thể xóa user, vui lòng thử lại!");
       }
@@ -39,6 +43,8 @@ export default function UserPage() {
       toast.error(error.response?.data || "Lỗi từ server. Vui lòng thử lại!");
     }
   };
+  
+  
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);

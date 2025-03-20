@@ -26,6 +26,17 @@ export const addCourseForAdmin = createAsyncThunk<Course, Course>(
       }
     }
   );
+  export const deleteCourseForAdmin = createAsyncThunk<string, string>(
+    "course/deleteCourseForAdmin",
+    async (courseId, { rejectWithValue }) => {
+      try {
+        const result = await apiService.delete(`QuanLyKhoaHoc/XoaKhoaHoc?MaKhoaHoc=${courseId}`);
+        return result.data; 
+      } catch (error: any) {
+        return rejectWithValue(error.response.data || "Lỗi không xác định");
+      }
+    }
+  );
   
 
 type TState = {
@@ -76,6 +87,21 @@ const courseForAdminSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string; 
       });
+      builder
+      .addCase(deleteCourseForAdmin.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+      .addCase(deleteCourseForAdmin.fulfilled, (state, action) => {
+    state.loading = false;
+    if (state.data) {
+      state.data = state.data.filter((course) => course.maKhoaHoc !== action.payload);
+    }
+  })
+      .addCase(deleteCourseForAdmin.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload as string;
+  });
 
   },
 });
