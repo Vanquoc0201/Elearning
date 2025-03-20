@@ -53,8 +53,11 @@ export default function AdminCoursePage() {
       ngayTao: "",
       maDanhMucKhoaHoc: "",
       taiKhoanNguoiTao: "",
+      danhMucKhoaHoc: { maDanhMucKhoaHoc: "" }, // Thêm lại
+      nguoiTao: { taiKhoan: "" }, // Thêm lại
     });
   };
+  
 
   const handleSubmit = useCallback(async () => {
     if (!course.maKhoaHoc || !course.tenKhoaHoc || !course.maDanhMucKhoaHoc || !course.taiKhoanNguoiTao) {
@@ -65,19 +68,9 @@ export default function AdminCoursePage() {
     try {
       const courseToSubmit: Course = {
         ...course,
-        danhMucKhoaHoc: {
-          ...course.danhMucKhoaHoc,
-          maDanhMucKhoaHoc: course.maDanhMucKhoaHoc, // Đưa vào object danhMucKhoaHoc
-        },
-        taiKhoan: course.taiKhoanNguoiTao,
+        danhMucKhoaHoc: { maDanhMucKhoaHoc: course.maDanhMucKhoaHoc },
+        nguoiTao: { taiKhoan: course.taiKhoanNguoiTao },
       };
-    
-      console.log(courseToSubmit);
-    } catch (error) {
-      console.error(error);
-    }
-    
-      
   
       await dispatch(addCourseForAdmin(courseToSubmit)).unwrap();
       setOpenModal(false);
@@ -86,7 +79,6 @@ export default function AdminCoursePage() {
       console.error("Thêm khóa học thất bại:", error);
     }
   }, [dispatch, course]);
-  
 
   return (
     <div className="p-6">

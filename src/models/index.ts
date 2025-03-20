@@ -16,6 +16,8 @@ export type Course = {
     maNhom: string;
     ngayTao: string;
     soLuongHocVien? : number
+    maDanhMucKhoaHoc? : string
+    taiKhoanNguoiTao? : string
     // Thay vì chỉ có mã danh mục, giữ cả thông tin danh mục
     danhMucKhoaHoc: {
       maDanhMucKhoaHoc?: string;
@@ -63,13 +65,3 @@ export type CourseForAdmin = {
 };
 
 
-export interface DanhMucKhoaHoc {
-  maDanhMucKhoaHoc: string;
-  tenDanhMucKhoaHoc: string;
-}
-
-export interface NguoiDung {
-  taiKhoan: string;
-  hoTen: string;
-  maLoaiNguoiDung: string;
-}
