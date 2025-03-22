@@ -29,14 +29,18 @@ export const addCourseForAdmin = createAsyncThunk<Course, Course>(
   export const deleteCourseForAdmin = createAsyncThunk<string, string>(
     "course/deleteCourseForAdmin",
     async (courseId, { rejectWithValue }) => {
+      console.log("Deleting course with ID:", courseId); // Kiểm tra mã khóa học
+  
       try {
         const result = await apiService.delete(`QuanLyKhoaHoc/XoaKhoaHoc?MaKhoaHoc=${courseId}`);
         return result.data; 
       } catch (error: any) {
-        return rejectWithValue(error.response.data || "Lỗi không xác định");
+        console.log("Lỗi khi gọi API:", error.response);
+        return rejectWithValue(error.response?.data || "Lỗi không xác định");
       }
     }
   );
+  
   
 
 type TState = {
