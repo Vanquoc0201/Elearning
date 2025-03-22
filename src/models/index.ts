@@ -54,14 +54,11 @@ export type CourseForAdmin = {
   ngayTao: string;
   maDanhMucKhoaHoc: string;
   taiKhoanNguoiTao: string;
-  danhMucKhoaHoc?: { 
-    maDanhMucKhoaHoc: string;
-    tenDanhMucKhoaHoc?: string;
-  };  
-  nguoiTao?: {  
-    taiKhoan: string;
-    hoTen?: string;
-  };
 };
+export type UnregisteredUser = {
+  taiKhoan : string,
+  matKhau: string,
+  biDanh: string,
+}
 
 

@@ -7,7 +7,7 @@ import {
 } from "./slice";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../store";
-import { CourseForAdmin, Course } from "../../../models";
+import { CourseForAdmin } from "../../../models";
 import { toast, ToastContainer } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css"; 
 
@@ -31,7 +31,7 @@ export default function AdminCoursePage() {
     maDanhMucKhoaHoc: "",
     taiKhoanNguoiTao: "",
   });
-  const resetCourseData = () => {
+  const resetCourseData = useCallback(() => {
     setCourse({
       maKhoaHoc: "",
       biDanh: "",
@@ -45,7 +45,20 @@ export default function AdminCoursePage() {
       maDanhMucKhoaHoc: "",
       taiKhoanNguoiTao: "",
     });
-  };
+  }, [setCourse]);
+  
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    try {
+      await dispatch(addCourseForAdmin(course)).unwrap();
+      setOpenModal(false);
+      resetCourseData();
+    } catch (error) {
+      console.error("Lỗi khi gửi dữ liệu:", error);
+    }
+  }, [dispatch, course, resetCourseData]); 
+  
 
   useEffect(() => {
     dispatch(fetchCourseForAdmin());
@@ -79,36 +92,6 @@ export default function AdminCoursePage() {
   };
   
   
-  
-  
-
-  const handleSubmit = useCallback(async () => {
-    if (
-      !course.maKhoaHoc ||
-      !course.tenKhoaHoc ||
-      !course.maDanhMucKhoaHoc ||
-      !course.taiKhoanNguoiTao
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
-
-    try {
-      const courseToSubmit: Course = {
-        ...course,
-        danhMucKhoaHoc: { maDanhMucKhoaHoc: course.maDanhMucKhoaHoc },
-        nguoiTao: { taiKhoan: course.taiKhoanNguoiTao },
-      };
-
-      await dispatch(addCourseForAdmin(courseToSubmit)).unwrap();
-      toast.success("Thêm khóa học thành công!"); // 
-      setOpenModal(false);
-      resetCourseData();
-    } catch (error) {
-      console.error("Thêm khóa học thất bại:", error);
-      toast.error("Thêm khóa học thất bại!"); // 
-    }
-  }, [dispatch, course]);
 
   return (
     <div className="p-6">
@@ -212,8 +195,6 @@ export default function AdminCoursePage() {
                 ))}
               </select>
             </div>
-
-            {/* Dropdown cho Tài khoản người tạo */}
             <div>
               <label className="block font-medium">Tài khoản người tạo</label>
               <select

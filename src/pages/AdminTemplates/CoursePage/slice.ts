@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiService from "../../../services/apiService";
-import { Course } from "../../../models";
+import { Course, CourseForAdmin } from "../../../models";
 
 export const fetchCourseForAdmin = createAsyncThunk<Course[], void>(
   "course/fetchCourseForAdmin",
@@ -15,7 +15,7 @@ export const fetchCourseForAdmin = createAsyncThunk<Course[], void>(
     }
   }
 );
-export const addCourseForAdmin = createAsyncThunk<Course, Course>(
+export const addCourseForAdmin = createAsyncThunk<CourseForAdmin, CourseForAdmin>(
     "course/addCourseForAdmin",
     async (course, { rejectWithValue }) => {
       try {
@@ -80,12 +80,20 @@ const courseForAdminSlice = createSlice({
       })
       .addCase(addCourseForAdmin.fulfilled, (state, action) => {
         state.loading = false;
+        
+        const newCourse: Course = {
+          ...action.payload, // ✅ Giữ lại tất cả thuộc tính từ CourseForAdmin
+          danhMucKhoaHoc: { maDanhMucKhoaHoc: action.payload.maDanhMucKhoaHoc || "", tenDanhMucKhoaHoc: "" }, 
+          nguoiTao: { taiKhoan: action.payload.taiKhoanNguoiTao || "", hoTen: "" },
+        };
+      
         if (state.data) {
-          state.data.push(action.payload); // ✅ Thêm khóa học vào danh sách hiện tại
+          state.data.push(newCourse);
         } else {
-          state.data = [action.payload]; // ✅ Nếu chưa có dữ liệu, tạo mảng mới
+          state.data = [newCourse];
         }
       })
+      
       
       .addCase(addCourseForAdmin.rejected, (state, action) => {
         state.loading = false;
