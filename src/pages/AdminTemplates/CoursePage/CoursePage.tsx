@@ -4,12 +4,13 @@ import {
   fetchCourseForAdmin,
   addCourseForAdmin,
   deleteCourseForAdmin,
+  updateCourseForAdmin,
 } from "./slice";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../../store";
 import { CourseForAdmin } from "../../../models";
-import { toast, ToastContainer } from "react-toastify"; 
-import "react-toastify/dist/ReactToastify.css"; 
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminCoursePage() {
   const { data, loading, error } = useSelector(
@@ -18,6 +19,9 @@ export default function AdminCoursePage() {
 
   const dispatch: AppDispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<CourseForAdmin | null>(
+    null
+  );
   const [course, setCourse] = useState<CourseForAdmin>({
     maKhoaHoc: "",
     biDanh: "",
@@ -46,23 +50,38 @@ export default function AdminCoursePage() {
       taiKhoanNguoiTao: "",
     });
   }, [setCourse]);
-  
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-  
-    try {
-      await dispatch(addCourseForAdmin(course)).unwrap();
-      setOpenModal(false);
-      resetCourseData();
-    } catch (error) {
-      console.error("Lỗi khi gửi dữ liệu:", error);
-    }
-  }, [dispatch, course, resetCourseData]); 
-  
+
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      try {
+        if (editingCourse) {
+          await dispatch(updateCourseForAdmin(course)).unwrap();
+          toast.success("Cập nhật khóa học thành công! 🎉");
+        } else {
+          await dispatch(addCourseForAdmin(course)).unwrap();
+          toast.success("Thêm khóa học thành công! 🎉");
+        }
+
+        setOpenModal(false);
+        resetCourseData();
+        setEditingCourse(null);
+
+        setTimeout(() => {
+          dispatch(fetchCourseForAdmin());
+        }, 1000);
+      } catch (error) {
+        console.error("Lỗi khi gửi dữ liệu:", error);
+        toast.error("❌ Thao tác thất bại, vui lòng thử lại!");
+      }
+    },
+    [dispatch, course, editingCourse, resetCourseData]
+  );
 
   useEffect(() => {
     dispatch(fetchCourseForAdmin());
-  }, [dispatch]);
+  }, [dispatch,data]);
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -70,7 +89,7 @@ export default function AdminCoursePage() {
     setCourse((prev) => ({ ...prev, [name]: value }));
   };
   const handleDeleteCourse = async (maKhoaHoc: string) => {
-    if (!window.confirm("Bạn có chắc muốn xóa khóa học này?")) return;  
+    if (!window.confirm("Bạn có chắc muốn xóa khóa học này?")) return;
     try {
       await dispatch(deleteCourseForAdmin(maKhoaHoc)).unwrap();
       toast.success("Xóa khóa học thành công!");
@@ -79,9 +98,12 @@ export default function AdminCoursePage() {
       }, 1000);
     } catch (error: any) {
       console.log("Lỗi khi xóa khóa học:", error);
-  
+
       if (error.response) {
-        const errorMessage = error.response.data?.message || error.response.data || "Có lỗi xảy ra, vui lòng thử lại!";
+        const errorMessage =
+          error.response.data?.message ||
+          error.response.data ||
+          "Có lỗi xảy ra, vui lòng thử lại!";
         toast.error(`❌ Lỗi: ${errorMessage}`);
       } else if (error.message) {
         toast.error(`❌ Lỗi: ${error.message}`);
@@ -90,14 +112,16 @@ export default function AdminCoursePage() {
       }
     }
   };
-  
-  
+    const handleEditCourse = (course: CourseForAdmin) => {
+      setEditingCourse(course);
+      setCourse(course)
+      setOpenModal(true);
+    };
 
   return (
     <div className="p-6">
       <ToastContainer />
       <h1 className="text-2xl font-bold mb-4">Admin - Manage Courses</h1>
-      {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded-md"
@@ -135,7 +159,10 @@ export default function AdminCoursePage() {
               <td className="border p-2">{course.ngayTao}</td>
               <td className="border p-2">{course.soLuongHocVien}</td>
               <td className="border p-2 space-x-2">
-                <button className="bg-green-500 text-white px-3 py-1 rounded">
+                <button
+                  onClick={() => handleEditCourse(course)}
+                  className="bg-green-500 text-white px-3 py-1 rounded"
+                >
                   Sửa
                 </button>
                 <button
@@ -149,8 +176,10 @@ export default function AdminCoursePage() {
           ))}
         </tbody>
       </table>
-       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>Thêm Khóa Học</Modal.Header>
+      <Modal show={openModal} onClose={() => setOpenModal(false)}>
+        <Modal.Header>
+          {editingCourse ? "Chỉnh Sửa Khóa Học" : "Thêm Khóa Học"}
+        </Modal.Header>
         <Modal.Body>
           <div className="space-y-4">
             {/* Các input bình thường */}
@@ -185,14 +214,17 @@ export default function AdminCoursePage() {
                 className="w-full border p-2 rounded"
               >
                 <option value="">Chọn danh mục</option>
-                {data?.map((course, index) => (
-                  <option
-                    key={`${course.danhMucKhoaHoc.maDanhMucKhoaHoc}-${index}`}
-                    value={course.danhMucKhoaHoc.maDanhMucKhoaHoc}
-                  >
-                    {course.danhMucKhoaHoc.tenDanhMucKhoaHoc}
-                  </option>
-                ))}
+
+                {data?.map((item) => {
+                  return (
+                    <option
+                      key={`${item.danhMucKhoaHoc.maDanhMucKhoahoc}`}
+                      value={item.danhMucKhoaHoc.maDanhMucKhoahoc}
+                    >
+                      {item.danhMucKhoaHoc.tenDanhMucKhoaHoc}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <div>
@@ -224,7 +256,7 @@ export default function AdminCoursePage() {
             className="bg-blue-500 text-white px-4 py-2 rounded"
             onClick={handleSubmit}
           >
-            Thêm Khóa Học
+            {editingCourse ? "Cập Nhật Khóa Học" : "Thêm Khóa Học"}
           </button>
         </Modal.Footer>
       </Modal>

@@ -40,7 +40,17 @@ export const addCourseForAdmin = createAsyncThunk<CourseForAdmin, CourseForAdmin
       }
     }
   );
-  
+  export const updateCourseForAdmin = createAsyncThunk<
+  CourseForAdmin,
+  CourseForAdmin
+>("course/updateCourseForAdmin", async (course, { rejectWithValue }) => {
+  try {
+    const result = await apiService.put("QuanLyKhoaHoc/CapNhatKhoaHoc", course);
+    return result.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Lỗi không xác định");
+  }
+});
   
 
 type TState = {
@@ -81,11 +91,17 @@ const courseForAdminSlice = createSlice({
       .addCase(addCourseForAdmin.fulfilled, (state, action) => {
         state.loading = false;
         
-        const newCourse: Course = {
-          ...action.payload, // ✅ Giữ lại tất cả thuộc tính từ CourseForAdmin
-          danhMucKhoaHoc: { maDanhMucKhoaHoc: action.payload.maDanhMucKhoaHoc || "", tenDanhMucKhoaHoc: "" }, 
-          nguoiTao: { taiKhoan: action.payload.taiKhoanNguoiTao || "", hoTen: "" },
-        };
+        const newCourse = {
+          ...action.payload,
+          danhMucKhoaHoc: {
+            maDanhMucKhoaHoc: action.payload.maDanhMucKhoaHoc || "",
+            tenDanhMucKhoaHoc: action.payload.maDanhMucKhoaHoc || "",
+          },
+          nguoiTao: {
+            taiKhoan: action.payload.taiKhoanNguoiTao || "",
+            hoTen: action.payload.taiKhoanNguoiTao || "",
+          },
+        } as Course; // Ép kiểu
       
         if (state.data) {
           state.data.push(newCourse);
@@ -111,6 +127,35 @@ const courseForAdminSlice = createSlice({
     }
   })
       .addCase(deleteCourseForAdmin.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload as string;
+  })
+  builder
+  .addCase(updateCourseForAdmin.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+  .addCase(updateCourseForAdmin.fulfilled, (state, action) => {
+    state.loading = false;
+    if (state.data) {
+      const index = state.data.findIndex((c) => c.maKhoaHoc === action.payload.maKhoaHoc);
+      if (index !== -1) {
+        state.data[index] = {
+          ...action.payload,
+          danhMucKhoaHoc: {
+            maDanhMucKhoaHoc: action.payload.maDanhMucKhoaHoc || "",
+            tenDanhMucKhoaHoc: action.payload.tenKhoaHoc || "",
+          },
+          nguoiTao: {
+            taiKhoan: action.payload.taiKhoanNguoiTao || "",
+            hoTen: action.payload.taiKhoanNguoiTao || "",
+          },
+        } as Course; 
+      }
+    }
+})
+
+  .addCase(updateCourseForAdmin.rejected, (state, action) => {
     state.loading = false;
     state.error = action.payload as string;
   });

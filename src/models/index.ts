@@ -20,7 +20,7 @@ export type Course = {
     taiKhoanNguoiTao? : string
     // Thay vì chỉ có mã danh mục, giữ cả thông tin danh mục
     danhMucKhoaHoc: {
-      maDanhMucKhoaHoc?: string;
+      maDanhMucKhoahoc?: string;
       tenDanhMucKhoaHoc?: string; // Optional vì CourseForAdmin không có
     };
 
@@ -48,12 +48,12 @@ export type CourseForAdmin = {
   tenKhoaHoc: string;
   moTa: string;
   luotXem: number | string;
-  danhGia: number | string;
+  danhGia?: number | string;
   hinhAnh: string;
   maNhom: string;
   ngayTao: string;
-  maDanhMucKhoaHoc: string;
-  taiKhoanNguoiTao: string;
+  maDanhMucKhoaHoc?: string;
+  taiKhoanNguoiTao?: string;
 };
 export type UnregisteredUser = {
   taiKhoan : string,

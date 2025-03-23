@@ -1,15 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function Header() {
-  const [keyword, setKeyword] = useState("");
-  const navigate = useNavigate();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (keyword.trim() !== "") {
-      navigate(`/admin/list-user?tuKhoa=${encodeURIComponent(keyword)}`);
-    }
-  };
 
   return (
     <nav className="bg-white border-gray-200 dark:bg-gray-900">
@@ -27,7 +17,7 @@ export default function Header() {
 
         {/* Search Form */}
         <div className="flex md:order-2">
-          <form onSubmit={handleSubmit} className="relative hidden md:block">
+          <form className="relative hidden md:block">
             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
               <svg
                 className="w-4 h-4 text-gray-500 dark:text-gray-400"
@@ -49,8 +39,6 @@ export default function Header() {
               type="text"
               className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="Search..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
             />
             <button type="submit" className="hidden" />
           </form>
