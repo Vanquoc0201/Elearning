@@ -13,7 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminCoursePage() {
-  const { data, loading, error } = useSelector(
+  const { data, error } = useSelector(
     (state: RootState) => state.courseForAdminReducer
   );
 
@@ -21,6 +21,10 @@ export default function AdminCoursePage() {
   const [openModal, setOpenModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseForAdmin | null>(
     null
+  );
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredData = data?.filter((course) =>
+    course.tenKhoaHoc.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const [course, setCourse] = useState<CourseForAdmin>({
     maKhoaHoc: "",
@@ -117,10 +121,16 @@ export default function AdminCoursePage() {
       setCourse(course)
       setOpenModal(true);
     };
-
   return (
     <div className="p-6">
       <ToastContainer />
+      <input
+        type="text"
+        placeholder="Tìm kiếm khóa học..."
+        className="border p-2 rounded mb-4 w-full"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
       <h1 className="text-2xl font-bold mb-4">Admin - Manage Courses</h1>
       {error && <p className="text-red-500">{error}</p>}
       <button
@@ -142,7 +152,7 @@ export default function AdminCoursePage() {
           </tr>
         </thead>
         <tbody>
-          {data?.map((course) => (
+          {filteredData?.map((course) => (
             <tr key={course.maKhoaHoc} className="border">
               <td className="border p-2">
                 <img
@@ -238,9 +248,9 @@ export default function AdminCoursePage() {
                 <option value="">Chọn tài khoản giảng viên</option>
                 {data
                   ?.filter((c) => c.nguoiTao.maLoaiNguoiDung === "GV")
-                  .map((c, index) => (
+                  .map((c) => (
                     <option
-                      key={`${c.nguoiTao.taiKhoan}-${index}`}
+                      key={`${c.nguoiTao.taiKhoan}`}
                       value={c.nguoiTao.taiKhoan}
                     >
                       {c.nguoiTao.taiKhoan}
