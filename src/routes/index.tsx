@@ -11,6 +11,7 @@ import PageNotFound from "../pages/PageNotFound";
 import SearchUser from "../pages/AdminTemplates/UserPage/searchUser";
 import Dashboard from "../pages/AdminTemplates/Dashboard";
 import AdminCoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
+import RegisterPage from "../pages/AdminTemplates/Register/RegisterPage";
 
 type TRoute = {
   path: string;
@@ -56,6 +57,10 @@ export const routes: TRoute[] = [
       {
         path:"course",
         element: <AdminCoursePage />
+      },
+      {
+        path:"registerCourse",
+        element: <RegisterPage />
       }
     ]
   },
