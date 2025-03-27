@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import apiService from "../../../services/apiService";
-import { UnregisteredUser } from "../../../models";
+import { UnregisteredUser  , UnregisteredCourseByUser} from "../../../models";
 
 // Fetch danh sách người dùng chưa ghi danh
-export const fetchCourseNotRegister = createAsyncThunk(
+export const fetchUserNotRegister = createAsyncThunk(
   "courses/fetchUnregisteredUsers",
   async (maKhoaHoc: string, { rejectWithValue }) => {
     try {
@@ -45,25 +45,109 @@ export const fetchRegisteredStudents = createAsyncThunk(
     }
   }
 );
+export const fetchReviewStudents = createAsyncThunk("courses/fetchReviewStudents", async (maKhoaHoc: string, { rejectWithValue }) => {
+  try {
+    const response = await apiService.post(`QuanLyNguoiDung/LayDanhSachHocVienChoXetDuyet`, { maKhoaHoc });
+    if (!response.data || response.data.length === 0) {
+      return rejectWithValue("Không có học viên nào chờ xét duyệt vào khóa học này.");
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Lỗi khi lấy danh sách học viên chơ xét duyệt:", error);
+    return rejectWithValue("Không thể lấy danh sách học viên chờ xét duyệt.");
+  }
+}
+)
+export const fetchUnregisteredCourses = createAsyncThunk(
+  "courses/fetchUnregisteredCourses",
+  async (taiKhoan: string, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(
+        "/QuanLyNguoiDung/LayDanhSachKhoaHocChuaGhiDanh",
+        { TaiKhoan: taiKhoan } 
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lỗi khi lấy danh sách khóa học.");
+    }
+  }
+);
+export const fetchRegisteredCourses = createAsyncThunk(
+  "courses/fetchRegisteredCourses",
+  async (taiKhoan: string, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(
+        "/QuanLyNguoiDung/LayDanhSachKhoaHocDaXetDuyet",
+        { TaiKhoan: taiKhoan } 
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Lỗi khi lấy danh sách khóa học.");
+    }
+  }
+);
+export const enrollCourse = createAsyncThunk(
+  "courses/enroll",
+  async ({ maKhoaHoc, taiKhoan }: { maKhoaHoc: string; taiKhoan: string }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post("QuanLyKhoaHoc/GhiDanhKhoaHoc", { maKhoaHoc, taiKhoan });
+
+      if (response.data === "Ghi danh thành công!") {
+        return response.data;
+      }
+
+      return rejectWithValue("Ghi danh thất bại, vui lòng thử lại.");
+    } catch (error: any) {
+      console.error("Lỗi khi ghi danh:", error);
+      return rejectWithValue("Lỗi hệ thống, không thể ghi danh.");
+    }
+  }
+);
+
 
 // Define state
 interface CoursesState {
-  registeredStudents: UnregisteredUser[];
-  unregisteredUsers: UnregisteredUser[];
+  unregisteredCourses: UnregisteredCourseByUser[];
+  registeredStudents: UnregisteredUser[]; // Danh sách học viên đã ghi danh
+  unregisteredUsers: UnregisteredUser[]; // Danh sách học viên chưa ghi danh
+  reviewStudents: UnregisteredUser[]; // Danh sách học viên chờ xét duyệt
+  registeredCourses: UnregisteredCourseByUser[]; // Danh sách khóa học đã ghi danh
+  loadingRegisteredCourse: boolean;
+  loadingReviewStudents: boolean;
   loadingRegistered: boolean;
-  loadingUnregistered: boolean;
+  loadingUnregisteredUser: boolean;
+  loadingUnregisteredCourse : boolean;
+  loadingEnroll: boolean; // Trạng thái loading khi ghi danh
+  successEnroll: string | null; // Thông báo khi ghi danh thành công
+  errorRegisteredCourse: string | null;
+  errorUnregisteredCourse: string | null;
+  errorReviewStudents: string | null;
   errorRegistered: string | null;
-  errorUnregistered: string | null;
+  errorUnregisteredUser: string | null;
+  errorEnroll: string | null; // Lưu lỗi khi ghi danh thất bại
 }
 
 const initialState: CoursesState = {
   registeredStudents: [],
   unregisteredUsers: [],
+  reviewStudents: [],
+  unregisteredCourses: [],
+  registeredCourses: [],
+  loadingRegisteredCourse: false,
+  loadingUnregisteredCourse: false,
   loadingRegistered: false,
-  loadingUnregistered: false,
+  loadingUnregisteredUser: false,
+  loadingReviewStudents: false,
+  loadingEnroll: false,
+  successEnroll: null,
+  errorRegisteredCourse: null,
+  errorUnregisteredCourse: null,
+  errorReviewStudents: null,
   errorRegistered: null,
-  errorUnregistered: null,
+  errorUnregisteredUser: null,
+  errorEnroll: null,
 };
+
 
 const registerCourseSlice = createSlice({
   name: "registerCourse",
@@ -72,21 +156,19 @@ const registerCourseSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Xử lý fetch danh sách chưa ghi danh
-      .addCase(fetchCourseNotRegister.pending, (state) => {
-        state.loadingUnregistered = true;
-        state.errorUnregistered = null;
+      .addCase(fetchUserNotRegister.pending, (state) => {
+        state.loadingUnregisteredUser = true;
+        state.errorUnregisteredUser = null;
       })
-      .addCase(fetchCourseNotRegister.fulfilled, (state, action) => {
+      .addCase(fetchUserNotRegister.fulfilled, (state, action) => {
         state.unregisteredUsers = action.payload;
-        state.loadingUnregistered = false;
+        state.loadingUnregisteredUser = false;
       })
-      .addCase(fetchCourseNotRegister.rejected, (state, action) => {
-        state.loadingUnregistered = false;
-        state.errorUnregistered = action.payload as string;
+      .addCase(fetchUserNotRegister.rejected, (state, action) => {
+        state.loadingUnregisteredUser = false;
+        state.errorUnregisteredUser = action.payload as string;
         state.unregisteredUsers = [];
       })
-      
-      // Xử lý fetch danh sách đã ghi danh
       .addCase(fetchRegisteredStudents.pending, (state) => {
         state.loadingRegistered = true;
         state.errorRegistered = null;
@@ -99,8 +181,60 @@ const registerCourseSlice = createSlice({
         state.loadingRegistered = false;
         state.errorRegistered = action.payload as string;
         state.registeredStudents = [];
+      })
+      .addCase(fetchReviewStudents.pending, (state) => {
+        state.loadingReviewStudents = true;
+        state.errorReviewStudents = null;
+      })
+      .addCase(fetchReviewStudents.fulfilled, (state, action) => {
+        state.reviewStudents = action.payload;
+        state.loadingReviewStudents = false;
+      })
+      .addCase(fetchReviewStudents.rejected, (state, action) => {
+        state.loadingReviewStudents = false;
+        state.errorReviewStudents = action.payload as string;
+        state.reviewStudents = [];
+      })
+      .addCase(enrollCourse.pending, (state) => {
+        state.loadingEnroll = true;
+        state.errorEnroll = null;
+        state.successEnroll = null;
+      })
+      .addCase(enrollCourse.fulfilled, (state, action) => {
+        state.successEnroll = action.payload;
+        state.loadingEnroll = false;
+      })
+      .addCase(enrollCourse.rejected, (state, action) => {
+        state.errorEnroll = action.payload as string;
+        state.loadingEnroll = false;
+      })
+      .addCase(fetchUnregisteredCourses.pending, (state) => {
+        state.loadingUnregisteredCourse = true;
+        state.errorUnregisteredCourse = null;
+      })
+      .addCase(fetchUnregisteredCourses.fulfilled, (state, action) => {
+        state.unregisteredCourses = action.payload;
+        state.loadingUnregisteredCourse = false;
+      })
+      .addCase(fetchUnregisteredCourses.rejected, (state, action) => {
+        state.loadingUnregisteredCourse = false;
+        state.errorUnregisteredCourse = action.payload as string;
+        state.unregisteredCourses = [];
+      })
+      .addCase(fetchRegisteredCourses.pending, (state) => {
+        state.loadingRegisteredCourse = true;
+        state.errorRegisteredCourse = null;
+      })
+      .addCase(fetchRegisteredCourses.fulfilled, (state, action) => {
+        state.registeredCourses = action.payload;
+        state.loadingRegisteredCourse = false;
+      })
+      .addCase(fetchRegisteredCourses.rejected, (state, action) => {
+        state.loadingRegisteredCourse = false;
+        state.errorRegisteredCourse = action.payload as string;
+        state.registeredCourses = [];
       });
-  },
+  }
 });
 
 export default registerCourseSlice.reducer;

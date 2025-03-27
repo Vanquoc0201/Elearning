@@ -12,6 +12,11 @@ import SearchUser from "../pages/AdminTemplates/UserPage/searchUser";
 import Dashboard from "../pages/AdminTemplates/Dashboard";
 import AdminCoursePage from "../pages/AdminTemplates/CoursePage/CoursePage";
 import RegisterPage from "../pages/AdminTemplates/Register/RegisterPage";
+import RegisteredUsers from "../pages/AdminTemplates/Register/RegisteredUser";
+import UnregisteredUsers from "../pages/AdminTemplates/Register/UnRegisteredUser";
+import ReviewRegisteredUser from "../pages/AdminTemplates/Register/ReviewRegisteredUser";
+import RegisteredCourse from "../pages/AdminTemplates/Register/RegisteredCourse";
+import UnregisteredCourse from "../pages/AdminTemplates/Register/UnregisteredCourse";
 
 type TRoute = {
   path: string;
@@ -61,6 +66,26 @@ export const routes: TRoute[] = [
       {
         path:"registerCourse",
         element: <RegisterPage />
+      },
+      {
+        path:"registeredUserByCourse",
+        element: <RegisteredUsers />
+      },
+      {
+        path: "unRegisteredUserByCourse",
+        element: <UnregisteredUsers />
+      },
+      {
+        path: "reviewRegisteredUser",
+        element: <ReviewRegisteredUser />
+      },
+      {
+        path:"registeredCourseByUser",
+        element: <RegisteredCourse />
+      },
+      {
+        path: "unRegisteredCourseByUser",
+        element: <UnregisteredCourse />
       }
     ]
   },

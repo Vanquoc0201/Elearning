@@ -57,8 +57,13 @@ export type CourseForAdmin = {
 };
 export type UnregisteredUser = {
   taiKhoan: string,
-    hoTen: string,
-    biDanh: string
+  hoTen: string,
+  biDanh: string
+}
+export type UnregisteredCourseByUser = {
+  maKhoaHoc: string,
+  biDanh: string,
+  tenKhoaHoc: string
 }
 
 

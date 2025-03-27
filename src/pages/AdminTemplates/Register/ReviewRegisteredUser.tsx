@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../../store";
-import { fetchUserNotRegister } from "./slice";
+import { fetchReviewStudents, enrollCourse } from "./slice";
 import { UnregisteredUser } from "../../../models";
 import { Switch } from "@headlessui/react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 
-export default function UnregisteredUsers() {
+export default function ReviewRegisteredUser() {
   const [maKhoaHoc, setMaKhoaHoc] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<{ [key: string]: boolean }>({});
-
   const dispatch: AppDispatch = useDispatch();
-  const { unregisteredUsers, loadingUnregisteredUser, errorUnregisteredUser } = useSelector(
+  const { reviewStudents, loadingReviewStudents, errorReviewStudents } = useSelector(
     (state: RootState) => state.registerCourseReducer
   );
 
@@ -21,25 +22,42 @@ export default function UnregisteredUsers() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (maKhoaHoc.trim()) {
-      dispatch(fetchUserNotRegister(maKhoaHoc));
+      dispatch(fetchReviewStudents(maKhoaHoc));
     }
   };
 
-  const handleToggle = (taiKhoan: string) => {
+  const handleToggle = async (taiKhoan: string) => {
+    const isEnrolling = !selectedUsers[taiKhoan];
     setSelectedUsers((prevState) => ({
       ...prevState,
-      [taiKhoan]: !prevState[taiKhoan],
+      [taiKhoan]: isEnrolling,
     }));
 
-    // TODO: Gọi API để ghi danh người dùng (hiện tại chỉ đang toggle switch)
-    console.log(`Ghi danh người dùng: ${taiKhoan} vào khóa học: ${maKhoaHoc}`);
-  };
+    if (isEnrolling) {
+      try {
+        await dispatch(enrollCourse({ taiKhoan, maKhoaHoc })).unwrap();
+        toast.success(`🎉 Ghi danh thành công cho tài khoản ${taiKhoan}`);
+
+        // Chờ 1 giây rồi fetch lại danh sách
+        setTimeout(() => {
+          dispatch(fetchReviewStudents(maKhoaHoc));
+        }, 1000);
+      } catch (error: any) {
+        console.error("Lỗi khi ghi danh:", error);
+        toast.error("❌ Ghi danh thất bại. Vui lòng thử lại.");
+      }
+    }
+};
+
 
   return (
     <div className="p-6 border rounded-lg shadow-md bg-white">
-      <h2 className="text-xl font-semibold mb-4">
-        Danh sách người dùng chưa ghi danh theo mã khóa học
+      <h2 className="text-xl font-semibold mb-4 text-white bg-red-500 px-4 py-2 rounded-md text-center">
+        Danh sách người dùng chờ xét duyệt
       </h2>
+
+      {/* Toast Container để hiển thị thông báo */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
         <input
@@ -47,36 +65,36 @@ export default function UnregisteredUsers() {
           value={maKhoaHoc}
           onChange={handleOnChange}
           placeholder="Nhập mã khóa học..."
-          className="border p-2 flex-1 rounded-md focus:ring-2 focus:ring-blue-500"
+          className="border p-2 flex-1 rounded-md focus:ring-2 focus:ring-red-500"
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
-          disabled={loadingUnregisteredUser || !maKhoaHoc.trim()}
+          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition disabled:opacity-50"
+          disabled={loadingReviewStudents || !maKhoaHoc.trim()}
         >
-          {loadingUnregisteredUser ? "Đang tìm..." : "Tìm kiếm"}
+          {loadingReviewStudents ? "Đang tìm..." : "Tìm kiếm"}
         </button>
       </form>
 
-      {errorUnregisteredUser && <p className="text-red-500">{errorUnregisteredUser}</p>}
-      {loadingUnregisteredUser && <p className="text-center text-gray-500">Đang tải...</p>}
+      {errorReviewStudents && <p className="text-red-500">{errorReviewStudents}</p>}
+      {loadingReviewStudents && <p className="text-center text-gray-500">Đang tải...</p>}
 
-      {unregisteredUsers.length > 0 ? (
+      {reviewStudents.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300 shadow-md rounded-md">
             <thead>
-              <tr className="bg-blue-500 text-white">
+              <tr className="bg-red-500 text-white">
                 <th className="px-4 py-2 border">Tài khoản</th>
                 <th className="px-4 py-2 border">Họ tên</th>
                 <th className="px-4 py-2 border">Bí Danh</th>
-                <th className="px-4 py-2 border">Ghi danh</th>
+                <th className="px-4 py-2 border">Xét duyệt</th>
               </tr>
             </thead>
             <tbody>
-              {unregisteredUsers.map(({ taiKhoan, hoTen, biDanh }: UnregisteredUser, index) => (
+              {reviewStudents.map(({ taiKhoan, hoTen, biDanh }: UnregisteredUser, index) => (
                 <tr
                   key={taiKhoan}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
+                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-300`}
                 >
                   <td className="px-4 py-2 border text-center">{taiKhoan}</td>
                   <td className="px-4 py-2 border text-center">{hoTen}</td>
@@ -86,7 +104,7 @@ export default function UnregisteredUsers() {
                       checked={selectedUsers[taiKhoan] || false}
                       onChange={() => handleToggle(taiKhoan)}
                       className={`${
-                        selectedUsers[taiKhoan] ? "bg-blue-600" : "bg-gray-300"
+                        selectedUsers[taiKhoan] ? "bg-red-600" : "bg-gray-300"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition`}
                     >
                       <span className="sr-only">Ghi danh</span>
