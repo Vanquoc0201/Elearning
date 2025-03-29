@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../../store";
-import { fetchUserNotRegister } from "./slice";
+import { fetchUserNotRegister, enrollCourse } from "./slice";
 import { UnregisteredUser } from "../../../models";
 import { Switch } from "@headlessui/react";
+import { toast } from "react-toastify";
 
 export default function UnregisteredUsers() {
   const [maKhoaHoc, setMaKhoaHoc] = useState("");
@@ -25,21 +26,31 @@ export default function UnregisteredUsers() {
     }
   };
 
-  const handleToggle = (taiKhoan: string) => {
+  const handleToggle = async (taiKhoan: string) => {
+    if (!maKhoaHoc) return;
+
     setSelectedUsers((prevState) => ({
       ...prevState,
-      [taiKhoan]: !prevState[taiKhoan],
+      [taiKhoan]: true,
     }));
 
-    // TODO: Gọi API để ghi danh người dùng (hiện tại chỉ đang toggle switch)
-    console.log(`Ghi danh người dùng: ${taiKhoan} vào khóa học: ${maKhoaHoc}`);
+    try {
+      await dispatch(enrollCourse({ maKhoaHoc, taiKhoan })).unwrap();
+      toast.success(`🎉 Đã ghi danh tài khoản ${taiKhoan}`);
+      setTimeout(() => dispatch(fetchUserNotRegister(maKhoaHoc)), 1000);
+    } catch (error) {
+      console.error("Lỗi khi ghi danh:", error);
+      toast.error("❌ Ghi danh thất bại, vui lòng thử lại.");
+      setSelectedUsers((prevState) => ({
+        ...prevState,
+        [taiKhoan]: false,
+      }));
+    }
   };
 
   return (
     <div className="p-6 border rounded-lg shadow-md bg-white">
-      <h2 className="text-xl font-semibold mb-4">
-        Danh sách người dùng chưa ghi danh theo mã khóa học
-      </h2>
+      <h2 className="text-xl font-semibold mb-4">Danh sách người dùng chưa ghi danh</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
         <input
@@ -68,16 +79,13 @@ export default function UnregisteredUsers() {
               <tr className="bg-blue-500 text-white">
                 <th className="px-4 py-2 border">Tài khoản</th>
                 <th className="px-4 py-2 border">Họ tên</th>
-                <th className="px-4 py-2 border">Bí Danh</th>
+                <th className="px-4 py-2 border">Bí danh</th>
                 <th className="px-4 py-2 border">Ghi danh</th>
               </tr>
             </thead>
             <tbody>
               {unregisteredUsers.map(({ taiKhoan, hoTen, biDanh }: UnregisteredUser, index) => (
-                <tr
-                  key={taiKhoan}
-                  className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}
-                >
+                <tr key={taiKhoan} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-gray-200`}>
                   <td className="px-4 py-2 border text-center">{taiKhoan}</td>
                   <td className="px-4 py-2 border text-center">{hoTen}</td>
                   <td className="px-4 py-2 border text-center">{biDanh}</td>
@@ -85,15 +93,11 @@ export default function UnregisteredUsers() {
                     <Switch
                       checked={selectedUsers[taiKhoan] || false}
                       onChange={() => handleToggle(taiKhoan)}
-                      className={`${
-                        selectedUsers[taiKhoan] ? "bg-blue-600" : "bg-gray-300"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition`}
+                      className={`${selectedUsers[taiKhoan] ? "bg-blue-600" : "bg-gray-300"} relative inline-flex h-6 w-11 items-center rounded-full transition`}
                     >
                       <span className="sr-only">Ghi danh</span>
                       <span
-                        className={`${
-                          selectedUsers[taiKhoan] ? "translate-x-6" : "translate-x-1"
-                        } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                        className={`${selectedUsers[taiKhoan] ? "translate-x-6" : "translate-x-1"} inline-block h-4 w-4 transform bg-white rounded-full transition`}
                       />
                     </Switch>
                   </td>

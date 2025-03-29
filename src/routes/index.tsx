@@ -17,6 +17,7 @@ import UnregisteredUsers from "../pages/AdminTemplates/Register/UnRegisteredUser
 import ReviewRegisteredUser from "../pages/AdminTemplates/Register/ReviewRegisteredUser";
 import RegisteredCourse from "../pages/AdminTemplates/Register/RegisteredCourse";
 import UnregisteredCourse from "../pages/AdminTemplates/Register/UnregisteredCourse";
+import ReviewRegisteredCourse from "../pages/AdminTemplates/Register/ReviewRegisteredCourse";
 
 type TRoute = {
   path: string;
@@ -86,6 +87,10 @@ export const routes: TRoute[] = [
       {
         path: "unRegisteredCourseByUser",
         element: <UnregisteredCourse />
+      },
+      {
+        path: "reviewRegisteredCourse",
+        element: <ReviewRegisteredCourse />
       }
     ]
   },

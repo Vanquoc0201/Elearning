@@ -72,6 +72,19 @@ export const fetchUnregisteredCourses = createAsyncThunk(
     }
   }
 );
+export const fetchReviewCourses= createAsyncThunk("courses/fetchReviewCourse", async (taiKhoan: string, { rejectWithValue }) => {
+  try {
+    const response = await apiService.post(`QuanLyNguoiDung/LayDanhSachKhoaHocChoXetDuyet`, { taiKhoan });
+    if (!response.data || response.data.length === 0) {
+      return rejectWithValue("Không có khóa học nào chờ xét duyệt bởi người dùng này này.");
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Lỗi khi lấy danh sách  khóa học chờ xét duyệt:", error);
+    return rejectWithValue("Không thể lấy danh sách khóa học chờ xét duyệt.");
+  }
+}
+)
 export const fetchRegisteredCourses = createAsyncThunk(
   "courses/fetchRegisteredCourses",
   async (taiKhoan: string, { rejectWithValue }) => {
@@ -86,6 +99,7 @@ export const fetchRegisteredCourses = createAsyncThunk(
     }
   }
 );
+
 export const enrollCourse = createAsyncThunk(
   "courses/enroll",
   async ({ maKhoaHoc, taiKhoan }: { maKhoaHoc: string; taiKhoan: string }, { rejectWithValue }) => {
@@ -103,6 +117,24 @@ export const enrollCourse = createAsyncThunk(
     }
   }
 );
+export const cancelEnrollCourse = createAsyncThunk(
+  "courses/cancelEnroll",
+  async ({ maKhoaHoc, taiKhoan }: { maKhoaHoc: string; taiKhoan: string }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post("QuanLyKhoaHoc/HuyGhiDanh", { maKhoaHoc, taiKhoan });
+
+      if (response.data === "Hủy ghi danh thành công!") {
+        return response.data;
+      }
+
+      return rejectWithValue("Hủy ghi danh thất bại, vui lòng thử lại.");
+    } catch (error: any) {
+      console.error("Lỗi khi hủy ghi danh:", error);
+      return rejectWithValue("Lỗi hệ thống, không thể hủy ghi danh.");
+    }
+  }
+);
+
 
 
 // Define state
@@ -112,17 +144,23 @@ interface CoursesState {
   unregisteredUsers: UnregisteredUser[]; // Danh sách học viên chưa ghi danh
   reviewStudents: UnregisteredUser[]; // Danh sách học viên chờ xét duyệt
   registeredCourses: UnregisteredCourseByUser[]; // Danh sách khóa học đã ghi danh
+  reviewCourses: UnregisteredCourseByUser[]; // Danh sách khóa học chờ xét duyệt
+  loadingReviewCourses: boolean; // Trạng thái loading khi lấy danh sách khóa học chờ xét duyệt
   loadingRegisteredCourse: boolean;
   loadingReviewStudents: boolean;
   loadingRegistered: boolean;
   loadingUnregisteredUser: boolean;
   loadingUnregisteredCourse : boolean;
   loadingEnroll: boolean; // Trạng thái loading khi ghi danh
+  loadingCancelEnroll: boolean; // Trạng thái loading khi hủy ghi danh
+  successCancelEnroll: string | null; // Thông báo khi hủy ghi danh thành công
   successEnroll: string | null; // Thông báo khi ghi danh thành công
+  errorReviewCourses: string | null; // Lưu lỗi khi lấy danh sách khóa học chờ xét duyệt
   errorRegisteredCourse: string | null;
   errorUnregisteredCourse: string | null;
   errorReviewStudents: string | null;
   errorRegistered: string | null;
+  errorCancelEnroll: string | null; // Lưu lỗi khi hủy ghi danh thất bại
   errorUnregisteredUser: string | null;
   errorEnroll: string | null; // Lưu lỗi khi ghi danh thất bại
 }
@@ -133,6 +171,10 @@ const initialState: CoursesState = {
   reviewStudents: [],
   unregisteredCourses: [],
   registeredCourses: [],
+  reviewCourses: [],
+  loadingCancelEnroll: false,
+  successCancelEnroll: null,
+  loadingReviewCourses: false,
   loadingRegisteredCourse: false,
   loadingUnregisteredCourse: false,
   loadingRegistered: false,
@@ -140,6 +182,8 @@ const initialState: CoursesState = {
   loadingReviewStudents: false,
   loadingEnroll: false,
   successEnroll: null,
+  errorCancelEnroll: null,
+  errorReviewCourses: null,
   errorRegisteredCourse: null,
   errorUnregisteredCourse: null,
   errorReviewStudents: null,
@@ -233,6 +277,32 @@ const registerCourseSlice = createSlice({
         state.loadingRegisteredCourse = false;
         state.errorRegisteredCourse = action.payload as string;
         state.registeredCourses = [];
+      })
+      .addCase(fetchReviewCourses.pending, (state) => {
+        state.loadingReviewCourses = true;
+        state.errorReviewCourses = null;
+      })
+      .addCase(fetchReviewCourses.fulfilled, (state, action) => {
+        state.reviewCourses = action.payload;
+        state.loadingReviewCourses = false;
+      })
+      .addCase(fetchReviewCourses.rejected, (state, action) => {
+        state.loadingReviewCourses = false;
+        state.errorReviewCourses = action.payload as string;
+        state.reviewCourses = [];
+      })
+      .addCase(cancelEnrollCourse.pending, (state) => {
+        state.loadingCancelEnroll = true;
+        state.errorCancelEnroll = null;
+        state.successCancelEnroll = null;
+      })
+      .addCase(cancelEnrollCourse.fulfilled, (state, action) => {
+        state.successCancelEnroll = action.payload;
+        state.loadingCancelEnroll = false;
+      })
+      .addCase(cancelEnrollCourse.rejected, (state, action) => {
+        state.errorCancelEnroll = action.payload as string;
+        state.loadingCancelEnroll = false;
       });
   }
 });
