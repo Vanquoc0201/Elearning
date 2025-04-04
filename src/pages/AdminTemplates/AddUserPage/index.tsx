@@ -1,6 +1,8 @@
 import { useState } from "react";
 import apiService from "../../../services/apiService";
-import {toast,ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 export default function AddUserPage() {
   const [user, setUser] = useState({
     taiKhoan: "",
@@ -10,89 +12,150 @@ export default function AddUserPage() {
     maNhom: "GP01",
     maLoaiNguoiDung: "HV",
     hoTen: "",
-  })
+  });
+
+  const [errors, setErrors] = useState({
+    taiKhoan: "",
+    matKhau: "",
+    email: "",
+    soDT: "",
+    hoTen: "",
+  });
+
   const handleOnChange = (e: any) => {
-    const {name,value} = e.target;
+    const { name, value } = e.target;
     setUser({
       ...user,
       [name]: value,
-    })
-  }
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors: any = {};
+    if (!user.taiKhoan) newErrors.taiKhoan = "Tài khoản không được để trống!";
+    if (!user.matKhau) newErrors.matKhau = "Mật khẩu không được để trống!";
+    if (!user.email) newErrors.email = "Email không được để trống!";
+    if (!user.soDT) newErrors.soDT = "Số điện thoại không được để trống!";
+    if (!user.hoTen) newErrors.hoTen = "Họ và Tên không được để trống!";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("user submit",user);
-    
+
+    if (!validateForm()) return;
+
     try {
-      const result = await apiService.post("/QuanLyNguoiDung/ThemNguoiDung", user);
+      const result = await apiService.post(
+        "/QuanLyNguoiDung/ThemNguoiDung",
+        user
+      );
       const messageSuccess = "Thêm người dùng thành công";
-      toast.success(messageSuccess,{
-        position: 'bottom-right',
+      toast.success(messageSuccess, {
+        position: "bottom-right",
       });
-      return result.data
-    } catch (error){
-      console.log(error);
-      const messageError = "Thêm người dùng thất bại";
-      toast.error(messageError,{
-        position: 'bottom-right',
-      })
+
+      // Reset form after success
+      setUser({
+        taiKhoan: "",
+        matKhau: "",
+        email: "",
+        soDT: "",
+        maNhom: "GP01",
+        maLoaiNguoiDung: "HV",
+        hoTen: "",
+      });
+      setErrors({
+        taiKhoan: "",
+        matKhau: "",
+        email: "",
+        soDT: "",
+        hoTen: "",
+      });
+      return result.data;
+    } catch (error: any) {
+      console.log(error.response.data);
+      const messageError = error.response.data;
+      toast.error(messageError, {
+        position: "bottom-right",
+      });
     }
-  }
+  };
+
   return (
-    <div>
-      <h1>Thêm người dùng</h1>
-      <form onSubmit={handleSubmit} className="max-w-sm mx-auto">
-        <div className="mb-5">
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
+        Thêm người dùng
+      </h1>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white p-8 rounded-lg shadow-md"
+      >
+        <div>
           <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="taiKhoan"
+            className="block text-sm font-medium text-gray-700"
           >
             Tài khoản
           </label>
           <input
-          onChange={handleOnChange}
+            onChange={handleOnChange}
             name="taiKhoan"
             type="text"
             id="taiKhoan"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Vui lòng nhập tài khoản"
+            value={user.taiKhoan}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.taiKhoan && (
+            <p className="text-red-500 text-sm">{errors.taiKhoan}</p>
+          )}
         </div>
-        <div className="mb-5">
+        <div>
           <label
-            htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="matKhau"
+            className="block text-sm font-medium text-gray-700"
           >
             Mật khẩu
           </label>
           <input
-          onChange={handleOnChange}
+            onChange={handleOnChange}
             name="matKhau"
             type="password"
-            id="password"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            id="matKhau"
             placeholder="Vui lòng nhập mật khẩu"
+            value={user.matKhau}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.matKhau && (
+            <p className="text-red-500 text-sm">{errors.matKhau}</p>
+          )}
         </div>
-        <div className="mb-5">
+        <div>
           <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="hoTen"
+            className="block text-sm font-medium text-gray-700"
           >
             Họ và Tên
           </label>
           <input
-          onChange={handleOnChange}
+            onChange={handleOnChange}
             name="hoTen"
             type="text"
             id="hoTen"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Vui lòng nhập Họ và Tên"
+            value={user.hoTen}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.hoTen && (
+            <p className="text-red-500 text-sm">{errors.hoTen}</p>
+          )}
         </div>
-        <div className="mb-5">
+        <div>
           <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="soDT"
+            className="block text-sm font-medium text-gray-700"
           >
             Số điện thoại
           </label>
@@ -101,30 +164,36 @@ export default function AddUserPage() {
             name="soDT"
             type="text"
             id="soDT"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Vui lòng nhập SĐT"
+            value={user.soDT}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.soDT && <p className="text-red-500 text-sm">{errors.soDT}</p>}
         </div>
-        <div className="mb-5">
+        <div>
           <label
             htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block text-sm font-medium text-gray-700"
           >
             Email
           </label>
           <input
-          onChange={handleOnChange}
+            onChange={handleOnChange}
             name="email"
             type="email"
             id="email"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Vui lòng nhập email"
+            value={user.email}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
-        <div className="mb-5">
+        <div>
           <label
-            htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            htmlFor="maLoaiNguoiDung"
+            className="block text-sm font-medium text-gray-700"
           >
             Loại người dùng
           </label>
@@ -132,17 +201,18 @@ export default function AddUserPage() {
             onChange={handleOnChange}
             id="maLoaiNguoiDung"
             name="maLoaiNguoiDung"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            value={user.maLoaiNguoiDung}
+            className="w-full px-4 py-2 mt-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value={"HV"}>Học viên</option>
-            <option value={"GV"}>Giáo vụ</option>
+            <option value="HV">Học viên</option>
+            <option value="GV">Giáo vụ</option>
           </select>
         </div>
         <button
           type="submit"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="w-full py-3 mt-6 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
         >
-          Submit
+          Thêm người dùng
         </button>
       </form>
       <ToastContainer />

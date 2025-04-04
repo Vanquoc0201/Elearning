@@ -1,8 +1,10 @@
 export default function Dashboard() {
   return (
-    <div>
-        <h1>Dashboard</h1>
-        <h1>Danh sách người dùng mua khóa học trong 24h qua</h1>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-center text-blue-600">
+        Chúc mừng bạn đã quay trở lại admin của chúng tôi!
+      </h1>
     </div>
-  )
+  );
 }
+
