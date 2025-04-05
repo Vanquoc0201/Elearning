@@ -22,7 +22,7 @@ export const addCourseForAdmin = createAsyncThunk<CourseForAdmin, CourseForAdmin
         const result = await apiService.post("QuanLyKhoaHoc/ThemKhoaHoc", course);
         return result.data;
       } catch (error: any) {
-        return rejectWithValue(error.response?.data?.message || "Lỗi không xác định");
+        return rejectWithValue(error.response?.data || "Lỗi không xác định");
       }
     }
   );
@@ -35,8 +35,7 @@ export const addCourseForAdmin = createAsyncThunk<CourseForAdmin, CourseForAdmin
         const result = await apiService.delete(`QuanLyKhoaHoc/XoaKhoaHoc?MaKhoaHoc=${courseId}`);
         return result.data; 
       } catch (error: any) {
-        console.log("Lỗi khi gọi API:", error.response);
-        return rejectWithValue(error.response?.data || "Lỗi không xác định");
+        return rejectWithValue(error.response.data || "Lỗi không xác định");
       }
     }
   );

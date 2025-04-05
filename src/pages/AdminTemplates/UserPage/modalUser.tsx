@@ -26,6 +26,13 @@ export default function EditUserModal({
     maNhom: "GP01",
   });
 
+  const [errors, setErrors] = useState({
+    matKhau: "",
+    hoTen: "",
+    email: "",
+    soDt: "",
+  });
+
   useEffect(() => {
     if (user) {
       setFormData({
@@ -33,7 +40,7 @@ export default function EditUserModal({
         matKhau: user.matKhau || "",
         hoTen: user.hoTen || "",
         email: user.email || "",
-        soDt: user.soDt || "",
+        soDt: user.soDT || "",
         maLoaiNguoiDung: user.maLoaiNguoiDung || "",
         maNhom: user.maNhom || "GP01",
       });
@@ -46,9 +53,35 @@ export default function EditUserModal({
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdateUser = async () => {
+  const validate = () => {
+    const newErrors: any = {};
+
     if (!formData.matKhau.trim()) {
-      toast.warn("Vui lòng nhập mật khẩu! 🔒");
+      newErrors.matKhau = "Mật khẩu không được để trống!";
+    }
+
+    if (!formData.hoTen.trim()) {
+      newErrors.hoTen = "Họ tên không được để trống!";
+    }
+
+    // Kiểm tra định dạng email
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!formData.email.trim() || !emailPattern.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ!";
+    }
+
+    // Kiểm tra số điện thoại (nếu có thể là số điện thoại Việt Nam)
+    const phonePattern = /^0[0-9]{9}$/;
+    if (!formData.soDt.trim() || !phonePattern.test(formData.soDt)) {
+      newErrors.soDt = "Số điện thoại không hợp lệ!";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+  };
+
+  const handleUpdateUser = async () => {
+    if (!validate()) {
       return;
     }
 
@@ -102,6 +135,7 @@ export default function EditUserModal({
             className="w-full border p-2"
             placeholder="Nhập mật khẩu mới"
           />
+          {errors.matKhau && <p className="text-red-500 text-xs">{errors.matKhau}</p>}
         </div>
 
         <div className="mb-2">
@@ -116,6 +150,7 @@ export default function EditUserModal({
             className="w-full border p-2"
             placeholder="Họ tên"
           />
+          {errors.hoTen && <p className="text-red-500 text-xs">{errors.hoTen}</p>}
         </div>
 
         <div className="mb-2">
@@ -130,6 +165,7 @@ export default function EditUserModal({
             className="w-full border p-2"
             placeholder="Email"
           />
+          {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
         </div>
 
         <div className="mb-2">
@@ -144,6 +180,7 @@ export default function EditUserModal({
             className="w-full border p-2"
             placeholder="Số điện thoại"
           />
+          {errors.soDt && <p className="text-red-500 text-xs">{errors.soDt}</p>}
         </div>
 
         <div className="mb-2">

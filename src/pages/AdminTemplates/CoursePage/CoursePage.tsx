@@ -16,7 +16,7 @@ export default function AdminCoursePage() {
   const { data, error } = useSelector(
     (state: RootState) => state.courseForAdminReducer
   );
-
+  
   const dispatch: AppDispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseForAdmin | null>(
@@ -58,7 +58,33 @@ export default function AdminCoursePage() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-
+  
+      // Validation
+      if (!course.maKhoaHoc.trim()) {
+        toast.error("❌ Mã khóa học không được bỏ trống!");
+        return;
+      }
+      if (!course.biDanh.trim()) {
+        toast.error("❌ Bí danh không được bỏ trống!");
+        return;
+      }
+      if (!course.tenKhoaHoc.trim()) {
+        toast.error("❌ Tên khóa học không được bỏ trống!");
+        return;
+      }
+      if (!course.moTa.trim()) {
+        toast.error("❌ Mô tả không được bỏ trống!");
+        return;
+      }
+      if (!course.hinhAnh.trim() || !isValidURL(course.hinhAnh)) {
+        toast.error("❌ Hình ảnh không hợp lệ (vui lòng nhập URL hợp lệ)!");
+        return;
+      }
+      if (!course.ngayTao) {
+        toast.error("❌ Ngày tạo không được bỏ trống!");
+        return;
+      }
+  
       try {
         if (editingCourse) {
           await dispatch(updateCourseForAdmin(course)).unwrap();
@@ -67,31 +93,39 @@ export default function AdminCoursePage() {
           await dispatch(addCourseForAdmin(course)).unwrap();
           toast.success("Thêm khóa học thành công! 🎉");
         }
-
+  
         setOpenModal(false);
         resetCourseData();
         setEditingCourse(null);
-
+  
         setTimeout(() => {
           dispatch(fetchCourseForAdmin());
         }, 1000);
-      } catch (error) {
+      } catch (error:any) {
         console.error("Lỗi khi gửi dữ liệu:", error);
-        toast.error("❌ Thao tác thất bại, vui lòng thử lại!");
+        const messageError = error.response.data
+        toast.error(messageError);
       }
     },
     [dispatch, course, editingCourse, resetCourseData]
   );
+  const isValidURL = (string: string): boolean => {
+    const regex = /^(ftp|http|https):\/\/[^ "]+$/;
+    return regex.test(string);
+  };
+    
 
   useEffect(() => {
     dispatch(fetchCourseForAdmin());
-  }, [dispatch,data]);
+  }, [dispatch, data]);
+
   const handleOnChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setCourse((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleDeleteCourse = async (maKhoaHoc: string) => {
     if (!window.confirm("Bạn có chắc muốn xóa khóa học này?")) return;
     try {
@@ -101,26 +135,16 @@ export default function AdminCoursePage() {
         dispatch(fetchCourseForAdmin());
       }, 1000);
     } catch (error: any) {
-      console.log("Lỗi khi xóa khóa học:", error);
-
-      if (error.response) {
-        const errorMessage =
-          error.response.data?.message ||
-          error.response.data ||
-          "Có lỗi xảy ra, vui lòng thử lại!";
-        toast.error(`❌ Lỗi: ${errorMessage}`);
-      } else if (error.message) {
-        toast.error(`❌ Lỗi: ${error.message}`);
-      } else {
-        toast.error("❌ Lỗi không xác định!");
-      }
+      toast.error(error)
     }
   };
-    const handleEditCourse = (course: CourseForAdmin) => {
-      setEditingCourse(course);
-      setCourse(course)
-      setOpenModal(true);
-    };
+
+  const handleEditCourse = (course: CourseForAdmin) => {
+    setEditingCourse(course);
+    setCourse(course);
+    setOpenModal(true);
+  };
+
   return (
     <div className="p-6">
       <ToastContainer />
@@ -253,20 +277,25 @@ export default function AdminCoursePage() {
                       key={`${c.nguoiTao.taiKhoan}`}
                       value={c.nguoiTao.taiKhoan}
                     >
-                      {c.nguoiTao.taiKhoan}
+                      {c.nguoiTao.hoTen}
                     </option>
                   ))}
               </select>
             </div>
           </div>
         </Modal.Body>
-
         <Modal.Footer>
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={handleSubmit}
+            onClick={() => setOpenModal(false)}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
           >
-            {editingCourse ? "Cập Nhật Khóa Học" : "Thêm Khóa Học"}
+            Đóng
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            {editingCourse ? "Cập nhật" : "Thêm"}
           </button>
         </Modal.Footer>
       </Modal>

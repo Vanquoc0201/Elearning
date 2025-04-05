@@ -32,11 +32,25 @@ export default function AddUserPage() {
 
   const validateForm = () => {
     const newErrors: any = {};
+    
+    // Kiểm tra Tài khoản
     if (!user.taiKhoan) newErrors.taiKhoan = "Tài khoản không được để trống!";
+    
+    // Kiểm tra Mật khẩu
     if (!user.matKhau) newErrors.matKhau = "Mật khẩu không được để trống!";
+    else if (user.matKhau.length < 6) newErrors.matKhau = "Mật khẩu phải có ít nhất 6 ký tự!";
+    
+    // Kiểm tra Email
     if (!user.email) newErrors.email = "Email không được để trống!";
+    else if (!/\S+@\S+\.\S+/.test(user.email)) newErrors.email = "Email không hợp lệ!";
+    
+    // Kiểm tra Số điện thoại
     if (!user.soDT) newErrors.soDT = "Số điện thoại không được để trống!";
+    else if (!/^\d{10}$/.test(user.soDT)) newErrors.soDT = "Số điện thoại phải gồm 10 chữ số!";
+    
+    // Kiểm tra Họ và tên
     if (!user.hoTen) newErrors.hoTen = "Họ và Tên không được để trống!";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

@@ -12,10 +12,9 @@ export default function UserPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  
-  // Thêm state để quản lý phân trang
+
   const [page, setPage] = useState(1);
-  const pageSize = 10; // Số lượng user trên mỗi trang
+  const pageSize = 10;
 
   const { data, loading, error, totalCount } = useSelector(
     (state: RootState) => state.listUserReducer
@@ -84,13 +83,13 @@ export default function UserPage() {
 
   const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : 1;
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">Lỗi tải dữ liệu người dùng!</div>;
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="text-red-500 p-4">Lỗi tải dữ liệu người dùng!</div>;
 
   return (
-    <div className="p-4">
+    <div className="p-4 max-w-screen-xl mx-auto">
       <ToastContainer position="top-right" autoClose={3000} />
-      <h1 className="text-xl font-semibold text-gray-700 mb-4">
+      <h1 className="text-2xl font-semibold text-gray-700 mb-4">
         Danh sách người mua khóa học
       </h1>
 
@@ -100,15 +99,15 @@ export default function UserPage() {
         placeholder="Tìm kiếm người dùng..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-4 p-2 border rounded w-full"
+        className="mb-4 p-2 border rounded w-full md:w-1/3"
       />
 
       <div className="relative overflow-x-auto shadow-md rounded-lg">
-        <table className="w-auto text-sm text-gray-700 border border-gray-300">
+        <table className="w-full text-sm text-gray-700 border border-gray-300">
           <thead className="text-xs uppercase bg-gray-200">
             <tr>
               {["Tài khoản", "Họ tên", "Email", "Số ĐT", "Mã loại người dùng", "Action"].map((header) => (
-                <th key={header} className="px-2 py-2 text-center border border-gray-300">
+                <th key={header} className="px-4 py-2 text-center border border-gray-300">
                   {header}
                 </th>
               ))}
@@ -118,12 +117,12 @@ export default function UserPage() {
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <tr key={user.taiKhoan} className="odd:bg-gray-100 even:bg-white border-b">
-                  <td className="px-2 py-2 text-center border border-gray-300">{user.taiKhoan}</td>
-                  <td className="px-2 py-2 text-center border border-gray-300">{user.hoTen}</td>
-                  <td className="px-2 py-2 text-center border border-gray-300">{user.email}</td>
-                  <td className="px-2 py-2 text-center border border-gray-300">{user.soDt}</td>
-                  <td className="px-2 py-2 text-center border border-gray-300">{user.maLoaiNguoiDung}</td>
-                  <td className="px-2 py-2 text-center border border-gray-300">
+                  <td className="px-4 py-2 text-center border border-gray-300">{user.taiKhoan}</td>
+                  <td className="px-4 py-2 text-center border border-gray-300">{user.hoTen}</td>
+                  <td className="px-4 py-2 text-center border border-gray-300">{user.email}</td>
+                  <td className="px-4 py-2 text-center border border-gray-300">{user.soDT}</td>
+                  <td className="px-4 py-2 text-center border border-gray-300">{user.maLoaiNguoiDung}</td>
+                  <td className="px-4 py-2 text-center border border-gray-300">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleEditUser(user)}
