@@ -17,38 +17,10 @@ export default function Header() {
           <span className="text-2xl font-bold tracking-wide">Elearning</span>
         </a>
 
-        {/* Menu */}
-        <ul className="hidden md:flex space-x-8 font-medium text-white">
-          <li>
-            <a
-              href="#"
-              className="hover:text-yellow-300 transition-colors duration-300"
-            >
-              Home
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="hover:text-yellow-300 transition-colors duration-300"
-            >
-              About
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="hover:text-yellow-300 transition-colors duration-300"
-            >
-              Services
-            </a>
-          </li>
-        </ul>
-
         {/* User Info */}
         <div className="flex items-center space-x-3 text-white">
           <img
-            src="https://via.placeholder.com/40"
+            src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
             alt="User Avatar"
             className="w-10 h-10 rounded-full border-2 border-white shadow-md"
           />

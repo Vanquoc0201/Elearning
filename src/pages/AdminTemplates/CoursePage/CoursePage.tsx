@@ -16,7 +16,7 @@ export default function AdminCoursePage() {
   const { data, error } = useSelector(
     (state: RootState) => state.courseForAdminReducer
   );
-  
+
   const dispatch: AppDispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState<CourseForAdmin | null>(
@@ -58,7 +58,7 @@ export default function AdminCoursePage() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-  
+
       // Validation
       if (!course.maKhoaHoc.trim()) {
         toast.error("❌ Mã khóa học không được bỏ trống!");
@@ -84,7 +84,7 @@ export default function AdminCoursePage() {
         toast.error("❌ Ngày tạo không được bỏ trống!");
         return;
       }
-  
+
       try {
         if (editingCourse) {
           await dispatch(updateCourseForAdmin(course)).unwrap();
@@ -93,17 +93,17 @@ export default function AdminCoursePage() {
           await dispatch(addCourseForAdmin(course)).unwrap();
           toast.success("Thêm khóa học thành công! 🎉");
         }
-  
+
         setOpenModal(false);
         resetCourseData();
         setEditingCourse(null);
-  
+
         setTimeout(() => {
           dispatch(fetchCourseForAdmin());
         }, 1000);
-      } catch (error:any) {
+      } catch (error: any) {
         console.error("Lỗi khi gửi dữ liệu:", error);
-        const messageError = error.response.data
+        const messageError = error.response.data;
         toast.error(messageError);
       }
     },
@@ -113,7 +113,6 @@ export default function AdminCoursePage() {
     const regex = /^(ftp|http|https):\/\/[^ "]+$/;
     return regex.test(string);
   };
-    
 
   useEffect(() => {
     dispatch(fetchCourseForAdmin());
@@ -135,7 +134,7 @@ export default function AdminCoursePage() {
         dispatch(fetchCourseForAdmin());
       }, 1000);
     } catch (error: any) {
-      toast.error(error)
+      toast.error(error);
     }
   };
 
@@ -180,9 +179,15 @@ export default function AdminCoursePage() {
             <tr key={course.maKhoaHoc} className="border">
               <td className="border p-2">
                 <img
-                  src={course.hinhAnh || "https://via.placeholder.com/150"}
+                  src={course.hinhAnh || "https://..."}
                   alt={course.tenKhoaHoc}
                   className="w-12 h-12"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src =
+                      "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg";
+                  }}
                 />
               </td>
               <td className="border p-2">{course.tenKhoaHoc}</td>
@@ -210,7 +215,14 @@ export default function AdminCoursePage() {
           ))}
         </tbody>
       </table>
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
+      <Modal
+        show={openModal}
+        onClose={() => {
+          setOpenModal(false);
+          resetCourseData();
+          setEditingCourse(null);
+        }}
+      >
         <Modal.Header>
           {editingCourse ? "Chỉnh Sửa Khóa Học" : "Thêm Khóa Học"}
         </Modal.Header>
@@ -286,11 +298,16 @@ export default function AdminCoursePage() {
         </Modal.Body>
         <Modal.Footer>
           <button
-            onClick={() => setOpenModal(false)}
+            onClick={() => {
+              setOpenModal(false);
+              resetCourseData();
+              setEditingCourse(null);
+            }}
             className="bg-gray-500 text-white px-4 py-2 rounded"
           >
             Đóng
           </button>
+
           <button
             onClick={handleSubmit}
             className="bg-blue-500 text-white px-4 py-2 rounded"
